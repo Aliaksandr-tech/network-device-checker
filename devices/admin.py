@@ -19,3 +19,4 @@ class AuthDataAdmin(admin.ModelAdmin):
 class FeatureAdmin(admin.ModelAdmin):
     list_display = ('device', 'name', 'supported')
     list_filter = ('supported',)
+    search_fields = ('name',)

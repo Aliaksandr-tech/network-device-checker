@@ -1,7 +1,7 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .feature_defaults import DEFAULT_FEATURES
 
 class Device(models.Model):
     model = models.CharField(max_length=100)
@@ -26,3 +26,12 @@ class Feature(models.Model):
     config_cli = models.TextField(null=True, blank=True)
     config_web = models.TextField(null=True, blank=True)
     doc_reference = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({'✅' if self.supported else '❌'})"
+
+@receiver(post_save, sender=Device)
+def create_default_features(sender, instance, created, **kwargs):
+    if created:
+        for name in DEFAULT_FEATURES:
+            Feature.objects.create(device=instance, name=name, supported=False)

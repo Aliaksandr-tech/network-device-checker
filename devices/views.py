@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
-from .models import Device
+from .models import Device, Documentation, AuthData, Feature
 from .forms import DeviceSearchForm
+from django.http import Http404
 
 def device_search(request):
     if request.method == 'POST':
@@ -20,4 +21,19 @@ def device_search(request):
 
 def device_detail(request, device_id):
     device = Device.objects.get(id=device_id)
-    return render(request, 'devices/device_detail.html', {'device': device})
+    documentation = Documentation.objects.filter(device=device)
+    auth_data = AuthData.objects.filter(device=device)
+    features = Feature.objects.filter(device=device)
+    return render(request, 'devices/device_detail.html', {
+        'device': device,
+        'documentation': documentation,
+        'auth_data': auth_data,
+        'features': features,
+    })
+# шаблон для ссылки на методику тестирования
+def feature_method_view(request, feature_id):
+    try:
+        feature = Feature.objects.get(id=feature_id)
+    except Feature.DoesNotExist:
+        raise Http404("Функция не найдена")
+    return render(request, 'devices/feature_method.html', {'feature': feature})
