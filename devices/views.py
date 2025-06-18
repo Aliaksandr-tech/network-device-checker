@@ -2,6 +2,11 @@ from django.shortcuts import render, redirect
 from .models import Device, Documentation, AuthData, Feature
 from .forms import DeviceSearchForm
 from django.http import Http404
+from ping3 import ping
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from django.shortcuts import get_object_or_404
+
 
 def device_search(request):
     if request.method == 'POST':
@@ -24,12 +29,33 @@ def device_detail(request, device_id):
     documentation = Documentation.objects.filter(device=device)
     auth_data = AuthData.objects.filter(device=device)
     features = Feature.objects.filter(device=device)
+
+    ping_result = None
+    if device.ip_address:
+        try:
+            response_time = ping(device.ip_address, timeout=2)
+            ping_result = response_time is not None
+        except Exception:
+            ping_result = False
+
     return render(request, 'devices/device_detail.html', {
         'device': device,
         'documentation': documentation,
         'auth_data': auth_data,
         'features': features,
+        'ping_result': ping_result,
     })
+
+@require_GET
+def ping_device(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    result = ping(device.ip_address, timeout=1)
+    if result is None:
+        status = "Недоступен"
+    else:
+        status = f"Доступен, время отклика {result*1000:.0f} мс"
+    return JsonResponse({'status': status})
+
 # шаблон для ссылки на методику тестирования
 def feature_method_view(request, feature_id):
     try:

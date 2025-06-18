@@ -6,6 +6,10 @@ from .feature_defaults import DEFAULT_FEATURES
 class Device(models.Model):
     model = models.CharField(max_length=100)
     manufacturer = models.CharField(max_length=100)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)  # ← добавь это
+
+    def __str__(self):
+        return f"{self.manufacturer} {self.model}"
 
 class Documentation(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)

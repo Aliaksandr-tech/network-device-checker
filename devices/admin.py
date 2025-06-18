@@ -3,7 +3,7 @@ from .models import Device, Documentation, AuthData, Feature
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ('model', 'manufacturer')
+    list_display = ('model', 'manufacturer', 'ip_address')
     search_fields = ('model', 'manufacturer')
 
 @admin.register(Documentation)

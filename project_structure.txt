@@ -1,0 +1,60 @@
+.
+├── core
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── migrations
+│   ├── models.py
+│   ├── templates
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── db.sqlite3
+├── devices
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── admin.py
+│   ├── apps.py
+│   ├── feature_defaults.py
+│   ├── forms.py
+│   ├── migrations
+│   ├── models.py
+│   ├── templates
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── docs
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── admin.py
+│   ├── apps.py
+│   ├── manual_hg8245h.pdf
+│   ├── manual_hg8245h_yFKH6Wk.pdf
+│   ├── migrations
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── manage.py
+├── ndc
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── admin.py
+│   ├── asgi.py
+│   ├── models.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── project_structure.txt
+└── tests
+    ├── __init__.py
+    ├── __pycache__
+    ├── admin.py
+    ├── apps.py
+    ├── migrations
+    ├── models.py
+    ├── tests.py
+    └── views.py
+
+17 directories, 41 files
