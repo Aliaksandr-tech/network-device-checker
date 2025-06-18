@@ -138,6 +138,40 @@ document.getElementById('ping-btn').addEventListener('click', () => {
 });
 </script>
 
+<p><strong>Web:</strong> <span id="web-status" class="text-muted">авторизация успешна / ошибка</span></p>
+<button id="web-btn" class="btn btn-outline-primary btn-sm">Проверить Web</button>
+<div id="web-result" class="mt-2 small text-muted"></div>
+
+    <script>
+document.getElementById('web-btn').addEventListener('click', () => {
+    const deviceId = {{ device.id }};
+    fetch(`/device/${deviceId}/webcheck/`)
+        .then(response => response.json())
+        .then(data => {
+            const statusSpan = document.getElementById('web-status');
+            const resultDiv = document.getElementById('web-result');
+
+            if (data.status.includes("Доступен")) {
+                statusSpan.textContent = "✅ доступен";
+                statusSpan.className = "text-success";
+            } else {
+                statusSpan.textContent = "❌ недоступен";
+                statusSpan.className = "text-danger";
+            }
+
+            resultDiv.textContent = data.status;
+        })
+        .catch(() => {
+            const statusSpan = document.getElementById('web-status');
+            statusSpan.textContent = "⚠ ошибка";
+            statusSpan.className = "text-warning";
+
+            const resultDiv = document.getElementById('web-result');
+            resultDiv.textContent = "Произошла ошибка при проверке.";
+        });
+});
+</script>
+
 
 
    <!-- Блок 5: Проверка функций -->

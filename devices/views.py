@@ -1,3 +1,4 @@
+import requests
 from django.shortcuts import render, redirect
 from .models import Device, Documentation, AuthData, Feature
 from .forms import DeviceSearchForm
@@ -6,6 +7,7 @@ from ping3 import ping
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.shortcuts import get_object_or_404
+
 
 
 def device_search(request):
@@ -56,6 +58,17 @@ def ping_device(request, device_id):
         status = f"Доступен, время отклика {result*1000:.0f} мс"
     return JsonResponse({'status': status})
 
+def check_web(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    ip = device.ip_address
+    port = device.web_port or 80
+    url_http = f"http://{ip}:{port}"
+    try:
+        response = requests.get(url_http, timeout=2)
+        return JsonResponse({'status': f"Доступен (код {response.status_code})"})
+    except requests.RequestException as e:
+        return JsonResponse({'status': f"Недоступен: {str(e)}"})
+
 # шаблон для ссылки на методику тестирования
 def feature_method_view(request, feature_id):
     try:
@@ -63,3 +76,7 @@ def feature_method_view(request, feature_id):
     except Feature.DoesNotExist:
         raise Http404("Функция не найдена")
     return render(request, 'devices/feature_method.html', {'feature': feature})
+
+
+def index(request):
+    return render(request, 'index.html')

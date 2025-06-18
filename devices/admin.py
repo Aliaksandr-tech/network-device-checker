@@ -3,8 +3,9 @@ from .models import Device, Documentation, AuthData, Feature
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ('model', 'manufacturer', 'ip_address')
-    search_fields = ('model', 'manufacturer')
+    list_display = ('model', 'manufacturer', 'ip_address', 'web_port')
+    list_filter = ('manufacturer',)
+    search_fields = ('model', 'ip_address')
 
 @admin.register(Documentation)
 class DocumentationAdmin(admin.ModelAdmin):

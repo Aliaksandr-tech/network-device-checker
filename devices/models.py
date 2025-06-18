@@ -6,7 +6,8 @@ from .feature_defaults import DEFAULT_FEATURES
 class Device(models.Model):
     model = models.CharField(max_length=100)
     manufacturer = models.CharField(max_length=100)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)  # ← добавь это
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    web_port = models.PositiveIntegerField(default=80, help_text="Порт веб-интерфейса (обычно 80 или 443)")
 
     def __str__(self):
         return f"{self.manufacturer} {self.model}"
