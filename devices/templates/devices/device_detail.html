@@ -90,7 +90,7 @@
 
     <!-- Блок 4: Проверка доступности -->
     <div class="mb-4">
-        <p><strong>Ping:</strong>
+        <p><strong>Ping:</strong> <span id="ping-status">
           {% if ping_result %}
             <span class="text-success">✅ доступен</span>
           {% elif ping_result is not none %}
@@ -98,7 +98,7 @@
           {% else %}
             <span class="text-muted">нет IP-адреса</span>
           {% endif %}
-        </p>
+        </span></p>
         <p><strong>Web:</strong> <span class="text-muted">авторизация успешна / ошибка</span></p>
         <p><strong>CLI:</strong> <span class="text-muted">авторизация успешна / ошибка</span></p>
     </div>
@@ -107,22 +107,37 @@
     <div id="ping-result"></div>
 
     <script>
-    document.getElementById('ping-btn').addEventListener('click', () => {
-        const deviceId = {{ device.id }};
-        fetch(`/device/${deviceId}/ping/`)
-            .then(response => response.json())
-            .then(data => {
-                const resultDiv = document.getElementById('ping-result');
-                resultDiv.textContent = data.status;
-                resultDiv.style.color = data.status.includes("Доступен") ? "green" : "red";
-            })
-            .catch(() => {
-                const resultDiv = document.getElementById('ping-result');
-                resultDiv.textContent = "Ошибка при проверке";
-                resultDiv.style.color = "orange";
-            });
-    });
-    </script>
+document.getElementById('ping-btn').addEventListener('click', () => {
+    const deviceId = {{ device.id }};
+    fetch(`/device/${deviceId}/ping/`)
+        .then(response => response.json())
+        .then(data => {
+            // Обновление #ping-result (дополнительный вывод, по желанию)
+            const resultDiv = document.getElementById('ping-result');
+            resultDiv.textContent = data.status;
+            resultDiv.style.color = data.status.includes("Доступен") ? "green" : "red";
+
+            // 🔥 Обновляем галочку в #ping-status
+            const statusSpan = document.getElementById('ping-status');
+            if (data.status.includes("Доступен")) {
+                statusSpan.innerHTML = '<span class="text-success">✅ доступен</span>';
+            } else if (data.status.includes("Недоступен")) {
+                statusSpan.innerHTML = '<span class="text-danger">❌ недоступен</span>';
+            } else {
+                statusSpan.innerHTML = '<span class="text-muted">нет IP-адреса</span>';
+            }
+        })
+        .catch(() => {
+            const resultDiv = document.getElementById('ping-result');
+            resultDiv.textContent = "Ошибка при проверке";
+            resultDiv.style.color = "orange";
+
+            const statusSpan = document.getElementById('ping-status');
+            statusSpan.innerHTML = '<span class="text-warning">⚠ ошибка</span>';
+        });
+});
+</script>
+
 
 
    <!-- Блок 5: Проверка функций -->
