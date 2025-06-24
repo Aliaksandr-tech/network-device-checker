@@ -84,12 +84,16 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <a href="#" class="btn btn-outline-success btn-sm">Извлечь из PDF</a>
 
-            <form action="{% url 'extract_auth' device.id %}" method="post">
+            <!-- Форма для извлечения логина и пароля из PDF -->
+            <form action="{% url 'extract_auth' device.id %}" method="post" id="pdf-form">
               {% csrf_token %}
               <button class="btn btn-primary" type="submit">Извлечь логин/пароль из PDF</button>
             </form>
+
+            <div id="pdf-wait-message" class="alert alert-info mt-3" style="display: none;" role="alert">
+              ⏳ Пожалуйста, подождите... Идёт извлечение логина и пароля из PDF.
+            </div>
 
         </div>
     </div>
@@ -105,82 +109,78 @@
             <span class="text-muted">нет IP-адреса</span>
           {% endif %}
         </span></p>
-        <p><strong>Web:</strong> <span class="text-muted">авторизация успешна / ошибка</span></p>
+        <p><strong>Web:</strong> <span id="web-status" class="text-muted">авторизация успешна / ошибка</span></p>
         <p><strong>CLI:</strong> <span class="text-muted">авторизация успешна / ошибка</span></p>
     </div>
 
-        <button id="ping-btn">Пинг</button>
-    <div id="ping-result"></div>
+    <button id="ping-btn" class="btn btn-outline-secondary btn-sm">Пинг</button>
+    <div id="ping-result" class="mt-2"></div>
 
     <script>
-document.getElementById('ping-btn').addEventListener('click', () => {
-    const deviceId = {{ device.id }};
-    fetch(`/device/${deviceId}/ping/`)
-        .then(response => response.json())
-        .then(data => {
-            // Обновление #ping-result (дополнительный вывод, по желанию)
-            const resultDiv = document.getElementById('ping-result');
-            resultDiv.textContent = data.status;
-            resultDiv.style.color = data.status.includes("Доступен") ? "green" : "red";
+    document.getElementById('ping-btn').addEventListener('click', () => {
+        const deviceId = {{ device.id }};
+        fetch(`/device/${deviceId}/ping/`)
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('ping-result');
+                resultDiv.textContent = data.status;
+                resultDiv.style.color = data.status.includes("Доступен") ? "green" : "red";
 
-            // 🔥 Обновляем галочку в #ping-status
-            const statusSpan = document.getElementById('ping-status');
-            if (data.status.includes("Доступен")) {
-                statusSpan.innerHTML = '<span class="text-success">✅ доступен</span>';
-            } else if (data.status.includes("Недоступен")) {
-                statusSpan.innerHTML = '<span class="text-danger">❌ недоступен</span>';
-            } else {
-                statusSpan.innerHTML = '<span class="text-muted">нет IP-адреса</span>';
-            }
-        })
-        .catch(() => {
-            const resultDiv = document.getElementById('ping-result');
-            resultDiv.textContent = "Ошибка при проверке";
-            resultDiv.style.color = "orange";
+                const statusSpan = document.getElementById('ping-status');
+                if (data.status.includes("Доступен")) {
+                    statusSpan.innerHTML = '<span class="text-success">✅ доступен</span>';
+                } else if (data.status.includes("Недоступен")) {
+                    statusSpan.innerHTML = '<span class="text-danger">❌ недоступен</span>';
+                } else {
+                    statusSpan.innerHTML = '<span class="text-muted">нет IP-адреса</span>';
+                }
+            })
+            .catch(() => {
+                const resultDiv = document.getElementById('ping-result');
+                resultDiv.textContent = "Ошибка при проверке";
+                resultDiv.style.color = "orange";
 
-            const statusSpan = document.getElementById('ping-status');
-            statusSpan.innerHTML = '<span class="text-warning">⚠ ошибка</span>';
-        });
-});
-</script>
+                const statusSpan = document.getElementById('ping-status');
+                statusSpan.innerHTML = '<span class="text-warning">⚠ ошибка</span>';
+            });
+    });
+    </script>
 
-<p><strong>Web:</strong> <span id="web-status" class="text-muted">авторизация успешна / ошибка</span></p>
-<button id="web-btn" class="btn btn-outline-primary btn-sm">Проверить Web</button>
-<div id="web-result" class="mt-2 small text-muted"></div>
+    <p><strong>Web:</strong> <span id="web-status" class="text-muted">авторизация успешна / ошибка</span></p>
+    <button id="web-btn" class="btn btn-outline-primary btn-sm">Проверить Web</button>
+    <div id="web-result" class="mt-2 small text-muted"></div>
 
     <script>
-document.getElementById('web-btn').addEventListener('click', () => {
-    const deviceId = {{ device.id }};
-    fetch(`/device/${deviceId}/webcheck/`)
-        .then(response => response.json())
-        .then(data => {
-            const statusSpan = document.getElementById('web-status');
-            const resultDiv = document.getElementById('web-result');
+    document.getElementById('web-btn').addEventListener('click', () => {
+        const deviceId = {{ device.id }};
+        fetch(`/device/${deviceId}/webcheck/`)
+            .then(response => response.json())
+            .then(data => {
+                const statusSpan = document.getElementById('web-status');
+                const resultDiv = document.getElementById('web-result');
 
-            if (data.status.includes("Доступен")) {
-                statusSpan.textContent = "✅ доступен";
-                statusSpan.className = "text-success";
-            } else {
-                statusSpan.textContent = "❌ недоступен";
-                statusSpan.className = "text-danger";
-            }
+                if (data.status.includes("Доступен")) {
+                    statusSpan.textContent = "✅ доступен";
+                    statusSpan.className = "text-success";
+                } else {
+                    statusSpan.textContent = "❌ недоступен";
+                    statusSpan.className = "text-danger";
+                }
 
-            resultDiv.textContent = data.status;
-        })
-        .catch(() => {
-            const statusSpan = document.getElementById('web-status');
-            statusSpan.textContent = "⚠ ошибка";
-            statusSpan.className = "text-warning";
+                resultDiv.textContent = data.status;
+            })
+            .catch(() => {
+                const statusSpan = document.getElementById('web-status');
+                statusSpan.textContent = "⚠ ошибка";
+                statusSpan.className = "text-warning";
 
-            const resultDiv = document.getElementById('web-result');
-            resultDiv.textContent = "Произошла ошибка при проверке.";
-        });
-});
-</script>
+                const resultDiv = document.getElementById('web-result');
+                resultDiv.textContent = "Произошла ошибка при проверке.";
+            });
+    });
+    </script>
 
-
-
-   <!-- Блок 5: Проверка функций -->
+    <!-- Блок 5: Проверка функций -->
     <div class="card mb-4">
         <div class="card-header fw-bold">Проверка функций</div>
         <div class="card-body">
@@ -227,7 +227,28 @@ document.getElementById('web-btn').addEventListener('click', () => {
         </div>
     </div>
 
-
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById('pdf-form');
+    if (!form) {
+        console.warn('Форма для извлечения PDF не найдена');
+        return;
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault(); // Останавливаем стандартную отправку
+        const waitBox = document.getElementById('pdf-wait-message');
+        waitBox.style.display = 'block'; // Показываем сообщение
+
+        // Через 2 секунды отправляем форму
+        setTimeout(() => {
+            form.submit();
+        }, 2000);
+    });
+});
+</script>
+
 </body>
 </html>
