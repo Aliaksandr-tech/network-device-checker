@@ -1,12 +1,15 @@
 import requests
-from django.shortcuts import render, redirect
+from django.shortcuts import render,get_object_or_404, redirect
 from .models import Device, Documentation, AuthData, Feature
 from .forms import DeviceSearchForm
 from django.http import Http404
 from ping3 import ping
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-from django.shortcuts import get_object_or_404
+from docs.pdf_parser import extract_auth_data_from_pdf
+
+# повторы импортов
+# from django.shortcuts import get_object_or_404
 
 
 
@@ -80,3 +83,24 @@ def feature_method_view(request, feature_id):
 
 def index(request):
     return render(request, 'index.html')
+
+# парсер PDF:
+
+def extract_auth_view(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    manual = Documentation.objects.filter(device=device, doc_type='manual', status=True).first()
+
+    if manual:
+        login, password = extract_auth_data_from_pdf(manual.file_path.path)
+
+        # В любом случае — обновляем или создаём AuthData
+        AuthData.objects.update_or_create(
+            device=device,
+            access_type='web',
+            defaults={
+                'login': login if login else '',
+                'password': password if password else ''
+            }
+        )
+
+    return redirect('device_detail', device_id=device.id)

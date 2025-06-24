@@ -85,6 +85,12 @@
                 </tbody>
             </table>
             <a href="#" class="btn btn-outline-success btn-sm">Извлечь из PDF</a>
+
+            <form action="{% url 'extract_auth' device.id %}" method="post">
+              {% csrf_token %}
+              <button class="btn btn-primary" type="submit">Извлечь логин/пароль из PDF</button>
+            </form>
+
         </div>
     </div>
 
