@@ -89,6 +89,37 @@
             <form action="{% url 'extract_auth' device.id %}" method="post" id="pdf-form">
               {% csrf_token %}
               <button class="btn btn-primary" type="submit">Извлечь логин/пароль из PDF</button>
+
+
+                <button id="web-login-btn" class="btn btn-outline-primary btn-sm">Авторизоваться через Web</button>
+                    <div id="web-login-result" class="mt-2 small text-muted"></div>
+
+                    <script>
+                    document.getElementById('web-login-btn').addEventListener('click', () => {
+                        const deviceId = {{ device.id }};
+                        const resultDiv = document.getElementById('web-login-result');
+
+                        resultDiv.textContent = "⏳ Авторизация через Web...";
+                        resultDiv.className = "text-info";
+
+                        fetch(`/device/${deviceId}/weblogin/`)
+                            .then(response => response.json())
+                            .then(data => {
+                                resultDiv.textContent = data.status;
+                                if (data.redirect) {
+                                    resultDiv.innerHTML += `<br><a href="${data.redirect}" target="_blank">Открыть вручную</a>`;
+                                }
+                                resultDiv.className = data.status.includes("✅") ? "text-success"
+                                                    : data.status.includes("⚠") ? "text-warning"
+                                                    : "text-danger";
+                            })
+                            .catch(() => {
+                                resultDiv.textContent = "Произошла ошибка при попытке входа.";
+                                resultDiv.className = "text-warning";
+                            });
+                    });
+                    </script>
+
             </form>
 
             <div id="pdf-wait-message" class="alert alert-info mt-3" style="display: none;" role="alert">
