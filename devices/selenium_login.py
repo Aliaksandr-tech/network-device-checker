@@ -46,4 +46,3 @@ def try_web_login(ip, port, login, password):
         if driver:
             driver.quit()
 
-            # для теста коммита
