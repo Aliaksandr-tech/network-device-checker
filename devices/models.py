@@ -2,12 +2,16 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .feature_defaults import DEFAULT_FEATURES
+from django.utils import timezone
 
 class Device(models.Model):
     model = models.CharField(max_length=100)
     manufacturer = models.CharField(max_length=100)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     web_port = models.PositiveIntegerField(default=80, help_text="Порт веб-интерфейса (обычно 80 или 443)")
+
+    last_login_status = models.BooleanField(null=True, blank=True, help_text="Статус последней проверки авторизации")
+    last_login_checked = models.DateTimeField(null=True, blank=True, help_text="Время последней проверки авторизации")
 
     def __str__(self):
         return f"{self.manufacturer} {self.model}"

@@ -8,10 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from docs.pdf_parser import extract_auth_data_from_pdf
 from .selenium_login import try_web_login
-
-# повторы импортов
-# from django.shortcuts import get_object_or_404
-
+from django.utils import timezone
 
 
 def device_search(request):
@@ -103,29 +100,34 @@ def extract_auth_view(request, device_id):
                 'password': password if password else ''
             }
         )
+        device.login = login or ''
+        device.password = password or ''
+
+        device.save()
 
     return redirect('device_detail', device_id=device.id)
 
-from .selenium_login import try_web_login
 
-def web_login_view(request, device_id):
-    device = get_object_or_404(Device, id=device_id)
-    auth = AuthData.objects.filter(device=device, access_type='web').first()
 
-    if not device.ip_address:
-        return JsonResponse({'status': 'Ошибка: нет IP-адреса устройства'})
 
-    port = device.web_port or 80
-
-    if auth and auth.login and auth.password:
-        result = try_web_login(device.ip_address, port, auth.login, auth.password)
-        if result:
-            return JsonResponse({'status': '✅ Успешная авторизация через Web'})
-        else:
-            return JsonResponse({'status': '❌ Авторизация не удалась (возможно, неверный логин/пароль)'})
-    else:
-        url = f"http://{device.ip_address}:{port}"
-        return JsonResponse({'status': f'⚠ Логин и пароль не заданы. Перейдите вручную: {url}', 'redirect': url})
+# def web_login_view(request, device_id):
+#     device = get_object_or_404(Device, id=device_id)
+#     auth = AuthData.objects.filter(device=device, access_type='web').first()
+#
+#     if not device.ip_address:
+#         return JsonResponse({'status': 'Ошибка: нет IP-адреса устройства'})
+#
+#     port = device.web_port or 80
+#
+#     if auth and auth.login and auth.password:
+#         result = try_web_login(device.ip_address, port, auth.login, auth.password)
+#         if result:
+#             return JsonResponse({'status': '✅ Успешная авторизация через Web'})
+#         else:
+#             return JsonResponse({'status': '❌ Авторизация не удалась (возможно, неверный логин/пароль)'})
+#     else:
+#         url = f"http://{device.ip_address}:{port}"
+#         return JsonResponse({'status': f'⚠ Логин и пароль не заданы. Перейдите вручную: {url}', 'redirect': url})
 
 # авторизация
 
@@ -140,6 +142,10 @@ def web_login_view(request, device_id):
 
     if auth and auth.login and auth.password:
         result = try_web_login(device.ip_address, port, auth.login, auth.password)
+        auth.last_login_status = result
+        auth.last_login_checked = timezone.now()
+        auth.save()
+
         if result:
             return JsonResponse({'status': '✅ Успешная авторизация через Web'})
         else:
