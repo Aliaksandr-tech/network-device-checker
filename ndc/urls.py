@@ -19,7 +19,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('', include('core.urls')), # временно отключил для работы стартовой заглушки
+    path('', include('core.urls')), # временно отключал для работы стартовой заглушки, была опечатка в имени html-файла
     path('', include('devices.urls')),
     # другие приложения
 ]
