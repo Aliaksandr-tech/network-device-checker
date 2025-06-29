@@ -1,0 +1,14 @@
+version: '3'
+services:
+  ssh_emulator:
+    image: lscr.io/linuxserver/openssh-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Moscow
+      - USER_NAME=admin      # Логин для эмулятора
+      - USER_PASSWORD=12345  # Пароль
+    ports:
+      - "2222:22"
+    volumes:
+      - ./ssh_emulator:/config

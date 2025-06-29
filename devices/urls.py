@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import cli_auth_view
 
 urlpatterns = [
     path('', views.index, name='index'), # шаблон стартовой
@@ -10,6 +11,7 @@ urlpatterns = [
     path('device/<int:device_id>/webcheck/', views.check_web, name='check_web'),
     path('device/<int:device_id>/extract-auth/', views.extract_auth_view, name='extract_auth'),
     path('device/<int:device_id>/weblogin/', views.web_login_view, name='web_login'),
+    path('cli-auth/', cli_auth_view, name='cli-auth'),
 
 
 
