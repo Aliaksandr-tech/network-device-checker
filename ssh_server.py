@@ -1,82 +1,133 @@
-import paramiko
 import socket
+import paramiko
 import threading
 import logging
+import time
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ssh_server")
 
-# Генерируем ключ хоста (RSA 2048 бит)
+# Генерация ключа
 host_key = paramiko.RSAKey.generate(2048)
+
 
 class SimpleSSHServer(paramiko.ServerInterface):
     def __init__(self):
         self.event = threading.Event()
 
     def check_auth_password(self, username, password):
-        # Проверяем логин и пароль
+        logger.info(f"Auth attempt: {username}/{password}")
         if username == "testuser" and password == "testpassword":
-            logger.info(f"Successful authentication for {username}")
             return paramiko.AUTH_SUCCESSFUL
-        logger.warning(f"Failed authentication for {username}")
         return paramiko.AUTH_FAILED
-
-    def get_allowed_auths(self, username):
-        return "password"
 
     def check_channel_request(self, kind, chanid):
         if kind == "session":
             return paramiko.OPEN_SUCCEEDED
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
-def run_ssh_server(port=2222):
-    # Создаем сокет
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('0.0.0.0', port))
-    server_socket.listen(100)
-    logger.info(f"SSH server started on port {port}")
+    def get_allowed_auths(self, username):
+        return "password"
 
-    while True:
-        client_socket, client_addr = server_socket.accept()
-        logger.info(f"Connection from {client_addr}")
 
+def handle_connection(client_sock, client_addr):
+    try:
+        logger.info(f"Handling connection from {client_addr}")
+
+        transport = paramiko.Transport(client_sock)
+        transport.add_server_key(host_key)
+        transport.set_subsystem_handler("sftp", paramiko.SFTPServer, paramiko.SFTPServer)
+
+        server = SimpleSSHServer()
         try:
-            transport = paramiko.Transport(client_socket)
-            transport.add_server_key(host_key)
-            server = SimpleSSHServer()
             transport.start_server(server=server)
-
-            # Ожидаем, пока не будет установлен канал
-            channel = transport.accept(20)
-            if channel is None:
-                logger.error("SSH channel negotiation failed.")
+            chan = transport.accept(20)
+            if chan is None:
+                logger.error("No channel")
                 transport.close()
-                continue
+                return
 
-            # Отправляем приветственное сообщение
-            channel.send("Welcome to the test SSH server!\n")
-            channel.send("This is a test server for your Django project.\n")
+        except paramiko.SSHException as e:
+            logger.error(f"SSH negotiation failed: {str(e)}")
+            return
 
-            # Простой интерактивный цикл (опционально)
-            while not channel.closed:
-                if channel.recv_ready():
-                    data = channel.recv(1024).decode('utf-8')
-                    if data.strip() == 'exit':
-                        channel.close()
-                        break
-                    # Эхо-ответ
-                    channel.send(f"You sent: {data}")
-
+        # Wait for auth
+        chan = transport.accept(20)
+        if chan is None:
+            logger.error("No channel")
             transport.close()
+            return
+        chan.get_pty(term='xterm', width=80, height=24)
+        # Send welcome message
+        chan.send("\r\nWelcome to SSH Test Server!\r\n")
+        chan.send("This is a test server for Django project\r\n\r\n")
+        chan.send("Welcome to SSH Test Server!\r\n")
+        chan.send("Connection established successfully.\r\n")
+        chan.close()
+
+        # Simple command handling
+        try:
+            while True:
+                chan.send("\r\n$ ")
+                command = ""
+                while not command.endswith("\r"):
+                    char = chan.recv(1).decode()
+                    if char == "\r":
+                        break
+                    command += char
+
+                command = command.strip()
+                if not command:
+                    continue
+
+                logger.info(f"Received command: {command}")
+
+                if command.lower() == "exit":
+                    chan.send("Goodbye!\r\n")
+                    break
+
+                # Execute command
+                chan.send(f"Executing: {command}\r\n")
+                chan.send(f"Result: '{command}' executed successfully\r\n")
 
         except Exception as e:
-            logger.error(f"SSH server error: {str(e)}")
-            try:
-                transport.close()
-            except:
-                pass
+            logger.error(f"Command handling error: {str(e)}")
+
+        chan.close()
+        transport.close()
+        logger.info(f"Connection closed for {client_addr}")
+
+    except Exception as e:
+        logger.error(f"Connection handler error: {str(e)}")
+        try:
+            transport.close()
+        except:
+            pass
+
+
+def run_server(port=2224):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('127.0.0.1', port))
+    sock.listen(5)
+    logger.info(f"SSH server started on 127.0.0.1:{port}")
+
+    try:
+        while True:
+            client_sock, client_addr = sock.accept()
+            logger.info(f"New connection from {client_addr[0]}:{client_addr[1]}")
+            thread = threading.Thread(
+                target=handle_connection,
+                args=(client_sock, client_addr),
+                daemon=True
+            )
+            thread.start()
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user")
+    finally:
+        sock.close()
+
 
 if __name__ == "__main__":
-    run_ssh_server(port=2222)
+    run_server(port=2224)

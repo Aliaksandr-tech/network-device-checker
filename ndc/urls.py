@@ -20,6 +20,7 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')), # временно отключал для работы стартовой заглушки, была опечатка в имени html-файла
+    path('devices/', include('devices.urls')),
     path('', include('devices.urls')),
     # другие приложения
 ]

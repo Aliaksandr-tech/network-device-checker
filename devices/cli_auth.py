@@ -5,26 +5,28 @@ def cli_auth(ip, port, username, password):
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         ssh.connect(
-            hostname=ip,
+            ip,
             port=port,
             username=username,
             password=password,
             timeout=10,
-            look_for_keys=False,  # не искать ключи
-            allow_agent=False,  # не использовать SSH-агент
+            look_for_keys=False,
+            allow_agent=False
         )
 
-        # Выполняем тестовую команду
-        stdin, stdout, stderr = ssh.exec_command('echo "Hello from SSH Server!"')
+        # Используем exec_command вместо интерактивного сеанса
+        stdin, stdout, stderr = ssh.exec_command("echo 'SSH connection successful!'")
         output = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
 
         ssh.close()
 
-        if error:
-            return False, f"SSH error: {error}"
-        return True, output
+        if output == "SSH connection successful!":
+            return True, output
+        else:
+            return False, error if error else "Unknown error"
 
     except Exception as e:
-        return False, f"SSH connection failed: {str(e)}"
+        return False, f"SSH error: {str(e)}"

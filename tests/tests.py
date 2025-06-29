@@ -1,3 +1,6 @@
-from django.test import TestCase
+# скрипт для проверки работы ssh сервера
+from devices.cli_auth import cli_auth
 
-# Create your tests here.
+result, output = cli_auth('localhost', 2222, 'testuser', 'testpassword')
+print("Success:", result)
+print("Output:", output)

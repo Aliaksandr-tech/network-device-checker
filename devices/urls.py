@@ -11,7 +11,9 @@ urlpatterns = [
     path('device/<int:device_id>/webcheck/', views.check_web, name='check_web'),
     path('device/<int:device_id>/extract-auth/', views.extract_auth_view, name='extract_auth'),
     path('device/<int:device_id>/weblogin/', views.web_login_view, name='web_login'),
-    path('cli-auth/', cli_auth_view, name='cli-auth'),
+    path('cli-auth/', views.cli_auth_view, name='cli-auth'),
+    path('test/', views.test_view, name='test'), # временно для теста
+
 
 
 

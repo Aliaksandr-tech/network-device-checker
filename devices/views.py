@@ -12,6 +12,8 @@ from .cli_auth import cli_auth
 
 
 
+
+
 def device_search(request):
     if request.method == 'POST':
         form = DeviceSearchForm(request.POST)
@@ -80,13 +82,10 @@ def check_web(request, device_id):
 #         success, output = cli_auth(ip, port, username, password)
 #         return JsonResponse({'success': success, 'output': output})
 
-from django.http import JsonResponse
-from .cli_auth import cli_auth
-
 def cli_auth_view(request):
     if request.method == 'POST':
         try:
-            # Для теста используем локальный сервер
+            # Для теста с Python SSH-сервером
             success, output = cli_auth(
                 ip='localhost',
                 port=2222,
@@ -95,10 +94,7 @@ def cli_auth_view(request):
             )
             return JsonResponse({'success': success, 'output': output})
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
+            return JsonResponse({'success': False, 'error': str(e)})
 
 # шаблон для ссылки на методику тестирования
 def feature_method_view(request, feature_id):
@@ -183,3 +179,7 @@ def web_login_view(request, device_id):
     else:
         url = f"http://{device.ip_address}:{port}"
         return JsonResponse({'status': f'⚠ Логин и пароль не заданы. Перейдите вручную: {url}', 'redirect': url})
+# временная переменная для теста:
+
+def test_view(request):
+    return JsonResponse({"status": "OK"})
