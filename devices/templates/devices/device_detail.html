@@ -208,56 +208,63 @@
                     });
                     </script>
 
-    <!-- Новая кнопка для CLI (Paramiko) -->
-    <button id="cli-auth-btn" class="btn btn-secondary">Авторизация (CLI)</button>
-    <!-- Блок для вывода результата -->
-    <div id="cli-auth-result" class="mt-3"></div>
 
-                    <script>
-                    document.getElementById('cli-auth-btn').addEventListener('click', async function() {
-                    const resultDiv = document.getElementById('cli-auth-result');
-                    resultDiv.innerHTML = '<div class="alert alert-info">Пытаюсь подключиться через CLI...</div>';
+    <!-- Кнопка CLI авторизации -->
+<button id="cli-auth-btn" class="btn btn-secondary">Авторизация (CLI)</button>
+<div id="cli-auth-result" class="mt-3"></div>
 
-                    try {
-                        const response = await fetch('/devices/cli-auth/', {  // URL твоего эндпоинта
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            body: JSON.stringify({
-                                device_id: {{ device.id }}  // ID устройства из контекста Django
-                            })
-                        });
+<script>
+<!--document.getElementById('cli-auth-btn').addEventListener('click', async function() {-->
+<!--    const resultDiv = document.getElementById('cli-auth-result');-->
+<!--    resultDiv.innerHTML = '<div class="alert alert-info">Попытка подключения через CLI...</div>';-->
 
-                        const data = await response.json();
+<!--    try {-->
+<!--        const response = await fetch('/devices/cli-auth/', {-->
+<!--            method: 'POST',-->
+<!--            headers: {-->
+<!--                'Content-Type': 'application/json',-->
+<!--                'X-CSRFToken': '{{ csrf_token }}'-->
+<!--            },-->
+<!--            body: JSON.stringify({})  // Можно передать device_id при необходимости-->
+<!--        });-->
 
-                        if (data.success) {
-                            resultDiv.innerHTML = `
-                                <div class="alert alert-success">
-                                    Успешно! Ответ устройства: <pre>${data.output}</pre>
-                                </div>
-                            `;
-                        } else {
-                            resultDiv.innerHTML = `
-                                <div class="alert alert-danger">
-                                    Ошибка: ${data.error}
-                                </div>
-                            `;
-                        }
-                    } catch (error) {
-                        resultDiv.innerHTML = `
-                            <div class="alert alert-danger">
-                                Ошибка сети: ${error.message}
-                            </div>
-                        `;
-                    }
-                });
-                </script>
+<!--        const data = await response.json();-->
 
-
-
-
+<!--        if (data.success) {-->
+<!--            resultDiv.innerHTML = `-->
+<!--                <div class="alert alert-success">-->
+<!--                    Успешно! Ответ сервера: <pre>${data.output}</pre>-->
+<!--                </div>-->
+<!--            `;-->
+<!--        } else {-->
+<!--            resultDiv.innerHTML = `-->
+<!--                <div class="alert alert-danger">-->
+<!--                    Ошибка: ${data.error}-->
+<!--                </div>-->
+<!--            `;-->
+<!--        }-->
+<!--    } catch (error) {-->
+<!--        resultDiv.innerHTML = `-->
+<!--            <div class="alert alert-danger">-->
+<!--                Ошибка сети: ${error.message}-->
+<!--            </div>-->
+<!--        `;-->
+<!--    }-->
+<!--});-->
+<!--// Простейший работающий запрос для теста-->
+document.getElementById('cli-auth-btn').addEventListener('click', function() {
+    fetch('http://localhost:8000/devices/cli-auth/')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('cli-auth-result').innerHTML =
+            `<pre>${data}</pre>`;
+    })
+    .catch(error => {
+        document.getElementById('cli-auth-result').innerHTML =
+            `Error: ${error.message}`;
+    });
+});
+</script>
 
     <!-- Блок 5: Проверка функций -->
     <div class="card mb-4">

@@ -2,9 +2,8 @@ import requests
 from django.shortcuts import render,get_object_or_404, redirect
 from .models import Device, Documentation, AuthData, Feature
 from .forms import DeviceSearchForm
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from ping3 import ping
-from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from docs.pdf_parser import extract_auth_data_from_pdf
 from .selenium_login import try_web_login
@@ -81,33 +80,20 @@ def check_web(request, device_id):
 #         success, output = cli_auth(ip, port, username, password)
 #         return JsonResponse({'success': success, 'output': output})
 
+from django.http import JsonResponse
+from .cli_auth import cli_auth
+
 def cli_auth_view(request):
     if request.method == 'POST':
-        device_id = request.POST.get('device_id')
         try:
-            device = Device.objects.get(id=device_id)
-            auth_data = AuthData.objects.filter(device=device, access_type='cli').first()
-
-            if not auth_data:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Для этого устройства нет данных для CLI-авторизации'
-                })
-
-            # Подключаемся к эмулятору (или реальному устройству)
+            # Для теста используем локальный сервер
             success, output = cli_auth(
-                ip='localhost',  # Или IP устройства
-                port=2222,  # Порт эмулятора
-                username=auth_data.login,
-                password=auth_data.password
+                ip='localhost',
+                port=2222,
+                username='testuser',
+                password='testpassword'
             )
-
-            return JsonResponse({
-                'success': success,
-                'output': output,
-                'error': None if success else output
-            })
-
+            return JsonResponse({'success': success, 'output': output})
         except Exception as e:
             return JsonResponse({
                 'success': False,

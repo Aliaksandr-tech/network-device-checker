@@ -1,14 +1,30 @@
 import paramiko
-from django.conf import settings
+
 
 def cli_auth(ip, port, username, password):
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ip, port=port, username=username, password=password, timeout=5)
-        stdin, stdout, stderr = ssh.exec_command('display version')  # Пример команды для Huawei
-        output = stdout.read().decode()
+        ssh.connect(
+            hostname=ip,
+            port=port,
+            username=username,
+            password=password,
+            timeout=10,
+            look_for_keys=False,  # не искать ключи
+            allow_agent=False,  # не использовать SSH-агент
+        )
+
+        # Выполняем тестовую команду
+        stdin, stdout, stderr = ssh.exec_command('echo "Hello from SSH Server!"')
+        output = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+
         ssh.close()
+
+        if error:
+            return False, f"SSH error: {error}"
         return True, output
+
     except Exception as e:
-        return False, str(e)
+        return False, f"SSH connection failed: {str(e)}"
