@@ -126,6 +126,15 @@ def extract_auth_view(request, device_id):
                 'password': password if password else ''
             }
         )
+
+        AuthData.objects.update_or_create(
+            device=device,
+            access_type='cli',
+            defaults={
+                'login': login if login else '',
+                'password': password if password else ''
+            }
+        )
         device.login = login or ''
         device.password = password or ''
 
