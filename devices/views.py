@@ -88,7 +88,7 @@ def cli_auth_view(request):
             # Для теста с Python SSH-сервером
             success, output = cli_auth(
                 ip='localhost',
-                port=2222,
+                port=2224,
                 username='testuser',
                 password='testpassword'
             )

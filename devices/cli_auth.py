@@ -23,10 +23,11 @@ def cli_auth(ip, port, username, password):
 
         ssh.close()
 
-        if output == "SSH connection successful!":
-            return True, output
+        if error:
+            return False, f"Error output: {error}"
         else:
-            return False, error if error else "Unknown error"
+            return True, f"Command output: {output}"
 
     except Exception as e:
         return False, f"SSH error: {str(e)}"
+
