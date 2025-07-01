@@ -2,6 +2,9 @@ print("Script started")
 import sys
 print("Python version:", sys.version)
 
+import warnings
+warnings.filterwarnings(action='ignore', module='.*paramiko.*')
+
 import paramiko
 
 def test_ssh_connection():
@@ -13,7 +16,7 @@ def test_ssh_connection():
         print("Connecting to SSH server...")
         ssh.connect(
             '127.0.0.1',
-            port=2222,
+            port=2224,  # убедись, что порт совпадает с портом сервера
             username='testuser',
             password='testpassword',
             timeout=10,
@@ -21,7 +24,6 @@ def test_ssh_connection():
             allow_agent=False
         )
 
-        # Используем простую команду вместо интерактивного сеанса
         stdin, stdout, stderr = ssh.exec_command("echo 'Hello SSH!'")
         output = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
@@ -33,12 +35,13 @@ def test_ssh_connection():
 
         if output == "Hello SSH!":
             print("SSH test PASSED")
-            return True
         else:
             print("SSH test FAILED")
-            return False
 
     except Exception as e:
         print(f"SSH Error: {str(e)}")
         print("SSH test FAILED")
-        return False
+
+# ⬇️ Вызов функции
+if __name__ == "__main__":
+    test_ssh_connection()
