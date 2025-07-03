@@ -5,7 +5,7 @@ from .forms import DeviceSearchForm
 from django.http import Http404, JsonResponse
 from ping3 import ping
 from django.views.decorators.http import require_GET
-from docs.pdf_parser import extract_auth_data_from_pdf, parse_feature_in_datasheet
+from docs.pdf_parser import extract_auth_data_from_pdf, parse_feature_in_datasheet,parse_manual_for_feature,FEATURE_SYNONYMS
 from .selenium_login import try_web_login
 from django.utils import timezone
 from .cli_auth import cli_auth
@@ -207,4 +207,25 @@ def check_datasheet(request, device_id, feature_id):
     else:
         return JsonResponse({'status': 'not_found'})
 
+# паpсер настроен из Manual:
+
+def check_manual_feature(request, device_id, feature_id):
+    try:
+        device = Device.objects.get(id=device_id)
+        feature = Feature.objects.get(id=feature_id)
+
+        # Пытаемся найти manual в документации
+        manual = Documentation.objects.filter(device=device, doc_type='manual').first()
+        if not manual:
+            return JsonResponse({'status': 'no_manual'})
+
+        page = parse_manual_for_feature(manual.file_path.path, feature.name, FEATURE_SYNONYMS)
+
+        if page is None:
+            return JsonResponse({'status': 'not_found'})
+        else:
+            return JsonResponse({'status': 'found', 'page': page})
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
 

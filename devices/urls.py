@@ -15,6 +15,8 @@ urlpatterns = [
     path('test/', views.test_view, name='test'), # временно для теста
 
     path('devices/<int:device_id>/check_datasheet/<int:feature_id>/', views.check_datasheet, name='check_datasheet'),
+    path('devices/<int:device_id>/check_manual/<int:feature_id>/', views.check_manual_feature, name='check_manual_feature'),
+
 ]
 
 

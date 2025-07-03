@@ -109,6 +109,30 @@ def parse_feature_in_datasheet(filepath, feature_name):
         print(f"Ошибка парсера: {e}")
         return False
 
+def parse_manual_for_feature(filepath, feature_name, synonyms_dict):
+    """
+    Ищет feature_name или его синонимы в PDF manual.
+    Возвращает номер страницы, где найдено. Если нет — None.
+    """
+    try:
+        doc = fitz.open(filepath)
+        normalized_feature_list = [normalize_text(s) for s in synonyms_dict.get(feature_name, [feature_name])]
+
+        for page_num, page in enumerate(doc, start=1):
+            text = normalize_text(page.get_text())
+
+            for variant in normalized_feature_list:
+                if variant in text:
+                    print(f"[parse_manual_for_feature] '{feature_name}' найдено на стр. {page_num} как '{variant}'")
+                    return page_num
+
+        print(f"[parse_manual_for_feature] '{feature_name}' не найдено в Manual")
+        return None
+
+    except Exception as e:
+        print(f"Ошибка при парсинге Manual: {e}")
+        return None
+
 
 
 

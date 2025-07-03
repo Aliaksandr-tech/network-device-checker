@@ -295,8 +295,7 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                         <th>Функция</th>
                         <th>Указана в документации</th>
                         <th>Поддержка</th>
-                        <th>CLI-настройка</th>
-                        <th>Web-настройка</th>
+                        <th>Настройка</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -314,21 +313,13 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                             Проверить по Datasheet
                           </button>
                         </td>
-
                         <td>{% if f.supported %}✅{% else %}❌{% endif %}</td>
                         <td>
-                            {% if f.config_cli %}
-                                <code>{{ f.config_cli|truncatewords:10 }}</code>
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if f.config_web %}
-                                <code>{{ f.config_web|truncatewords:10 }}</code>
-                            {% else %}
-                                —
-                            {% endif %}
+                          <button class="btn btn-sm btn-outline-primary check-manual-btn"
+                                  data-feature-id="{{ f.id }}"
+                                  data-device-id="{{ device.id }}">
+                            Проверить по Manual
+                          </button>
                         </td>
                     </tr>
                 {% empty %}
@@ -400,6 +391,44 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
+<script>
+document.querySelectorAll('.check-manual-btn').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    const deviceId = this.dataset.deviceId;
+    const featureId = this.dataset.featureId;
+    const button = this;
+
+    button.disabled = true;
+    button.textContent = 'Проверка...';
+
+    try {
+      const response = await fetch(`/devices/${deviceId}/check_manual/${featureId}/`);
+      if (!response.ok) throw new Error('Ошибка сети');
+
+      const data = await response.json();
+
+      if (data.status === 'no_manual') {
+        button.textContent = 'Нет Manual';
+        button.className = 'btn btn-sm btn-outline-danger disabled';
+      } else if (data.status === 'not_found') {
+        button.textContent = 'Настройка не найдена';
+        button.className = 'btn btn-sm btn-outline-warning disabled';
+      } else if (data.status === 'found') {
+        button.textContent = `Стр. ${data.page}`;
+        button.className = 'btn btn-sm btn-success disabled';
+      } else {
+        button.textContent = 'Ошибка';
+        button.className = 'btn btn-sm btn-outline-warning disabled';
+      }
+    } catch (e) {
+      button.textContent = 'Ошибка';
+      button.className = 'btn btn-sm btn-outline-warning disabled';
+    }
+  });
+});
+</script>
+
 
 </body>
 </html>
