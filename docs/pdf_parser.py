@@ -34,3 +34,24 @@ def extract_auth_data_from_pdf(pdf_path):
     except Exception as e:
         print(f"Ошибка при парсинге PDF: {e}")
         return None, None
+# парсинг функций из даташитов:
+
+def parse_feature_in_datasheet(filepath, feature_name):
+    """
+    Примерный парсер, который ищет feature_name в PDF-файле datasheet.
+    Возвращает True, если функция найдена, иначе False.
+
+    Тут можно использовать PyMuPDF, PyPDF2 или pdfplumber.
+    """
+    import fitz  # PyMuPDF
+
+    try:
+        doc = fitz.open(filepath)
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        return feature_name.lower() in text.lower()
+    except Exception as e:
+        print(f"Ошибка парсера: {e}")
+        return False

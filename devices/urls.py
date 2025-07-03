@@ -14,8 +14,10 @@ urlpatterns = [
     path('cli-auth/', views.cli_auth_view, name='cli-auth'),
     path('test/', views.test_view, name='test'), # временно для теста
 
-
-
-
-
+    path('devices/<int:device_id>/check_datasheet/<int:feature_id>/', views.check_datasheet, name='check_datasheet'),
 ]
+
+
+
+
+

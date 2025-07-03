@@ -5,7 +5,7 @@ from .forms import DeviceSearchForm
 from django.http import Http404, JsonResponse
 from ping3 import ping
 from django.views.decorators.http import require_GET
-from docs.pdf_parser import extract_auth_data_from_pdf
+from docs.pdf_parser import extract_auth_data_from_pdf, parse_feature_in_datasheet
 from .selenium_login import try_web_login
 from django.utils import timezone
 from .cli_auth import cli_auth
@@ -72,15 +72,6 @@ def check_web(request, device_id):
         return JsonResponse({'status': f"Доступен (код {response.status_code})"})
     except requests.RequestException as e:
         return JsonResponse({'status': f"Недоступен: {str(e)}"})
-
-# def check_cli_access(request):
-#     if request.method == 'POST':
-#         ip = "localhost"  # Для эмулятора
-#         port = 2222
-#         username = "admin"
-#         password = "12345"
-#         success, output = cli_auth(ip, port, username, password)
-#         return JsonResponse({'success': success, 'output': output})
 
 def cli_auth_view(request):
     if request.method == 'POST':
@@ -192,3 +183,28 @@ def web_login_view(request, device_id):
 
 def test_view(request):
     return JsonResponse({"status": "OK"})
+
+# парсер функций из Datasheet:
+
+def check_datasheet(request, device_id, feature_id):
+    device = Device.objects.filter(id=device_id).first()
+    feature = Feature.objects.filter(id=feature_id).first()
+
+    if not device or not feature:
+        return JsonResponse({'status': 'error', 'message': 'Устройство или функция не найдены'})
+
+    datasheets = Documentation.objects.filter(device=device, doc_type='datasheet')
+    if not datasheets.exists():
+        return JsonResponse({'status': 'no_datasheet'})
+
+    datasheet = datasheets.first()
+
+    # Запуск парсера из docs/pdf_parser.py
+    found = parse_feature_in_datasheet(datasheet.file_path.path, feature.name)
+
+    if found:
+        return JsonResponse({'status': 'found'})
+    else:
+        return JsonResponse({'status': 'not_found'})
+
+
