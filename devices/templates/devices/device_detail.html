@@ -307,7 +307,14 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                           <br>
                           <a href="{% url 'feature_method' f.id %}" class="small text-decoration-none">Методика тестирования</a>
                         </td>
-                        <td>{% if f.doc_reference %}Да{% else %}Нет{% endif %}</td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary check-ds-btn"
+                                  data-feature-id="{{ f.id }}"
+                                  data-device-id="{{ device.id }}">
+                            Проверить по Datasheet
+                          </button>
+                        </td>
+
                         <td>{% if f.supported %}✅{% else %}❌{% endif %}</td>
                         <td>
                             {% if f.config_cli %}
@@ -330,7 +337,46 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                 </tbody>
             </table>
         </div>
-    </div>
+
+        </div>
+
+            <script>
+            document.querySelectorAll('.check-ds-btn').forEach(btn => {
+              btn.addEventListener('click', async function() {
+                const deviceId = this.dataset.deviceId;
+                const featureId = this.dataset.featureId;
+                const button = this;
+
+                button.disabled = true;
+                button.textContent = 'Проверка...';
+
+                try {
+                  const response = await fetch(`/devices/${deviceId}/check_datasheet/${featureId}/`);
+                  if (!response.ok) throw new Error('Ошибка сети');
+
+                  const data = await response.json();
+
+                  if (data.status === 'no_datasheet') {
+                    button.textContent = 'Нет Datasheet';
+                    button.className = 'btn btn-sm btn-outline-danger disabled';
+                  } else if (data.status === 'found') {
+                    button.textContent = 'Да';
+                    button.className = 'btn btn-sm btn-success disabled';
+                  } else if (data.status === 'not_found') {
+                    button.textContent = 'Нет';
+                    button.className = 'btn btn-sm btn-outline-danger disabled';
+                  } else {
+                    button.textContent = 'Ошибка';
+                    button.className = 'btn btn-sm btn-outline-warning disabled';
+                  }
+                } catch (e) {
+                  button.textContent = 'Ошибка';
+                  button.className = 'btn btn-sm btn-outline-warning disabled';
+                }
+              });
+            });
+            </script>
+
 
 </div>
 
