@@ -22,7 +22,7 @@ def extract_auth_data_from_pdf(pdf_path):
         # Чёрный список очевидного мусора
         bad_words = {
             'and', 'or', 'is', 'the', 'are', 'to', 'in', 'of',
-            'protected', 'protected.', 'password', 'login', 'note', 'use', 'none', 'see'
+            'protected', 'protected.', 'password', 'login', 'note', 'use', 'none', 'see', 'role', 'authentication'
         }
 
         if login and login.lower() in bad_words:
