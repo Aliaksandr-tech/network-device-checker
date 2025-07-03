@@ -294,7 +294,7 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                     <tr>
                         <th>Функция</th>
                         <th>Указана в документации</th>
-                        <th>Поддержка</th>
+                        <th>Подтверждено в тесте</th>
                         <th>Настройка</th>
                     </tr>
                 </thead>
@@ -313,7 +313,28 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                             Проверить по Datasheet
                           </button>
                         </td>
-                        <td>{% if f.supported %}✅{% else %}❌{% endif %}</td>
+
+                      <td>
+                          <form method="post" action="{% url 'update_feature_support' f.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="supported" value="true">
+                            <button type="submit"
+                                    class="btn btn-sm {% if f.supported %}btn-success{% else %}btn-outline-success{% endif %}">
+                              ✅ Да
+                            </button>
+                          </form>
+
+                          <form method="post" action="{% url 'update_feature_support' f.id %}" style="display:inline; margin-left: 5px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="supported" value="false">
+                            <button type="submit"
+                                    class="btn btn-sm {% if not f.supported %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                              ❌ Нет
+                            </button>
+                          </form>
+                        </td>
+
+
                         <td>
                           <button class="btn btn-sm btn-outline-primary check-manual-btn"
                                   data-feature-id="{{ f.id }}"

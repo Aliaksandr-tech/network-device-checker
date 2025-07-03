@@ -229,3 +229,11 @@ def check_manual_feature(request, device_id, feature_id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
 
+def update_feature_support(request, feature_id):
+    if request.method == 'POST':
+        feature = get_object_or_404(Feature, id=feature_id)
+        value = request.POST.get('supported')
+        feature.supported = True if value == 'true' else False
+        feature.save()
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
