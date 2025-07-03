@@ -20,7 +20,7 @@ class Documentation(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     doc_type = models.CharField(choices=[("manual", "Manual"), ("datasheet", "Datasheet")], max_length=20)
     status = models.BooleanField(default=False)
-    file_path = models.FileField(upload_to='docs/')
+    file_path = models.FileField(upload_to='docs/', max_length=255)
 
 class AuthData(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)

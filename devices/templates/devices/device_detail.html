@@ -111,19 +111,16 @@
     <!-- Блок 4: Проверка доступности -->
    <!-- Блок 4: Проверка доступности -->
 <div class="mb-4">
-    <p><strong>Ping:</strong> <span id="ping-status">
-      {% if device.ip_address %}
-        {% if ping_result %}
-          <span class="text-success">✅ доступен</span>
-        {% elif ping_result is not none %}
-          <span class="text-danger">❌ недоступен</span>
+    <p><strong>IP-адрес:</strong>
+      <span id="ping-status">
+        {% if device.ip_address %}
+          <span class="text-success">{{ device.ip_address }} ✅</span>
         {% else %}
-          <span class="text-muted">ожидает проверки</span>
+          <span class="text-danger">нет IP-адреса ❌</span>
         {% endif %}
-      {% else %}
-        <span class="text-muted">нет IP-адреса</span>
-      {% endif %}
-    </span></p>
+      </span>
+    </p>
+
 
     <p><strong>CLI:</strong> <span class="text-muted">авторизация успешна / ошибка</span></p>
 </div>
