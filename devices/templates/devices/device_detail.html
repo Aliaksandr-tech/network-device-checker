@@ -294,8 +294,8 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                     <tr>
                         <th>Функция</th>
                         <th>Указана в документации</th>
-                        <th>Подтверждено в тесте</th>
                         <th>Настройка</th>
+                        <th>Подтверждено в тесте</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -313,6 +313,15 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                             Проверить по Datasheet
                           </button>
                         </td>
+
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary check-manual-btn"
+                                  data-feature-id="{{ f.id }}"
+                                  data-device-id="{{ device.id }}">
+                            Проверить по Manual
+                          </button>
+                        </td>
+
 
                       <td>
                           <form method="post" action="{% url 'update_feature_support' f.id %}" style="display:inline;">
@@ -335,13 +344,7 @@ document.getElementById('cli-auth-btn').addEventListener('click', async function
                         </td>
 
 
-                        <td>
-                          <button class="btn btn-sm btn-outline-primary check-manual-btn"
-                                  data-feature-id="{{ f.id }}"
-                                  data-device-id="{{ device.id }}">
-                            Проверить по Manual
-                          </button>
-                        </td>
+
                     </tr>
                 {% empty %}
                     <tr><td colspan="5" class="text-muted">Нет данных</td></tr>
