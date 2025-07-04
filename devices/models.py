@@ -44,3 +44,11 @@ def create_default_features(sender, instance, created, **kwargs):
     if created:
         for name in DEFAULT_FEATURES:
             Feature.objects.create(device=instance, name=name, supported=False)
+
+
+class FeatureMethodology(models.Model):
+    feature_name = models.CharField(max_length=255, unique=True)  # название функции
+    methodology = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.feature_name

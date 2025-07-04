@@ -8,7 +8,14 @@
 <body class="bg-light">
 <div class="container mt-5">
     <h2>Методика тестирования: {{ feature.name }}</h2>
-    <p class="text-muted">Здесь будет описание методики.</p>
+
+        {% if methodology %}
+        <p>{{ methodology.methodology|linebreaks }}</p>
+    {% else %}
+        <p class="text-muted">Методика пока не добавлена.</p>
+    {% endif %}
+
+
     <a href="{% url 'device_detail' feature.device.id %}" class="btn btn-secondary">Назад к устройству</a>
 </div>
 </body>

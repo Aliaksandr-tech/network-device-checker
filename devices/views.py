@@ -1,6 +1,6 @@
 import requests
 from django.shortcuts import render,get_object_or_404, redirect
-from .models import Device, Documentation, AuthData, Feature
+from .models import Device, Documentation, AuthData, Feature, FeatureMethodology
 from .forms import DeviceSearchForm
 from django.http import Http404, JsonResponse
 from ping3 import ping
@@ -9,9 +9,6 @@ from docs.pdf_parser import extract_auth_data_from_pdf, parse_feature_in_datashe
 from .selenium_login import try_web_login
 from django.utils import timezone
 from .cli_auth import cli_auth
-
-
-
 
 
 def device_search(request):
@@ -88,16 +85,31 @@ def cli_auth_view(request):
             return JsonResponse({'success': False, 'error': str(e)})
 
 # шаблон для ссылки на методику тестирования
-def feature_method_view(request, feature_id):
+# def feature_method_view(request, feature_id):
+#     try:
+#         feature = Feature.objects.get(id=feature_id)
+#     except Feature.DoesNotExist:
+#         raise Http404("Функция не найдена")
+#     return render(request, 'devices/feature_method.html', {'feature': feature})
+#
+#
+# def index(request):
+#     return render(request, 'index.html')
+
+# новый шаблон для ссылки на методику тестирования
+
+
+def feature_methodology_view(request, feature_id):
+    feature = get_object_or_404(Feature, id=feature_id)
     try:
-        feature = Feature.objects.get(id=feature_id)
-    except Feature.DoesNotExist:
-        raise Http404("Функция не найдена")
-    return render(request, 'devices/feature_method.html', {'feature': feature})
+        methodology = FeatureMethodology.objects.get(feature_name=feature.name)
+    except FeatureMethodology.DoesNotExist:
+        methodology = None
+    return render(request, 'devices/feature_method.html', {
+        'feature': feature,
+        'methodology': methodology,
+    })
 
-
-def index(request):
-    return render(request, 'index.html')
 
 # парсер PDF:
 
