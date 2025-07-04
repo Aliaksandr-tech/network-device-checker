@@ -22,7 +22,8 @@ def extract_auth_data_from_pdf(pdf_path):
         # Чёрный список очевидного мусора
         bad_words = {
             'and', 'or', 'is', 'the', 'are', 'to', 'in', 'of',
-            'protected', 'protected.', 'password', 'login', 'note', 'use', 'none', 'see', 'role', 'authentication'
+            'protected', 'protected.', 'password', 'login', 'note', 'use', 'none', 'see', 'role', 'authentication',
+            'through', 'for'
         }
 
         if login and login.lower() in bad_words:
@@ -44,7 +45,7 @@ def normalize_text(text):
 FEATURE_SYNONYMS = {
     'ICMP тип 0,8 (ping)': [
         'icmp', 'ping', 'icmp echo request', 'icmp echo reply',
-        'icmpv4', 'icmpv6', 'ping only', 'traceroute', 'lookup operations'
+        'icmpv4', 'icmpv6', 'ping only', 'lookup operations'
     ],
     'DHCP-сервер': [
         'dhcp сервер', 'dhcp server', 'dhcpserver', '•dhcp ',
