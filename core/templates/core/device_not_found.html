@@ -5,9 +5,12 @@
     <title>Устройство не найдено</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
-<body class="container mt-5">
-    <h2>Устройство с моделью "{{ model }}" не найдено в базе.</h2>
-    <p>Вы можете добавить его через админку.</p>
-    <a href="/" class="btn btn-secondary">Вернуться назад</a>
-</body>
+<div class="card border-warning shadow rounded-4 p-4">-->
+        <h2 class="text-warning">Устройство не найдено</h2>
+        <p class="mb-4">Модель <strong>{{ model }}</strong> отсутствует в базе данных.</p>
+        <p>Вы можете добавить это устройство вручную через <a href="/admin/devices/device/" class="link-primary">админку</a>.</p>
+        <a href="{% url 'device_search' %}" class="btn btn-secondary mt-3">Назад к поиску</a>
+    </div>
+
+
 </html>
