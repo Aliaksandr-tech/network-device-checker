@@ -22,6 +22,7 @@ class Documentation(models.Model):
     status = models.BooleanField(default=False)
     file_path = models.FileField(upload_to='docs/', max_length=255)
 
+
 class AuthData(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     access_type = models.CharField(choices=[("web", "Web"), ("cli", "CLI")], max_length=10)

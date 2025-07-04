@@ -12,6 +12,14 @@ class DocumentationAdmin(admin.ModelAdmin):
     list_display = ('device', 'doc_type', 'status')
     list_filter = ('doc_type', 'status')
 
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        device_id = request.GET.get('device')
+        if device_id:
+            initial['device'] = device_id
+        return initial
+
+
 @admin.register(AuthData)
 class AuthDataAdmin(admin.ModelAdmin):
     list_display = ('device', 'access_type', 'login')

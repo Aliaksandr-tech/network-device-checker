@@ -62,7 +62,9 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <a href="{% url 'admin:devices_documentation_add' %}" class="btn btn-outline-primary btn-sm">Загрузить документ</a>
+<!--            <a href="{% url 'admin:devices_documentation_add' %}" class="btn btn-outline-primary btn-sm">Загрузить документ</a>-->
+            <a href="{% url 'admin:devices_documentation_add' %}?device={{ device.id }}" class="btn btn-outline-primary btn-sm">Загрузить документ</a>
+
         </div>
     </div>
 
