@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib import admin
+from .models import Feature
 
 class Device(models.Model):
     model = models.CharField(max_length=100)
@@ -45,3 +47,5 @@ class Feature(models.Model):
 
     def __str__(self):
         return f"{self.name} ({'Yes' if self.supported else 'No'})"
+
+
